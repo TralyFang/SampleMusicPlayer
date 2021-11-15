@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport"
+			content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title></title>
+		<script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+		<script
+			src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBcdUwvS3i1PctunQi46CFWzUhJy9mw914&callback=initMap&libraries=&v=weekly"
+			defer>
+		</script>
+		<script type="text/javascript" src="https://js.cdn.aliyun.dcloud.net.cn/dev/uni-app/uni.webview.1.5.2.js">
+		</script>
+		<style type="text/css">
+			#map {
+				height: 100%;
+				width: 100%;
+			}
+ 
+			html,
+			body {
+				height: 100%;
+				width: 100%;
+				margin: 0;
+				padding: 0;
+			}
+			.custom-map-control-button {
+			  background-color: #fff;
+			  border: 0;
+			  border-radius: 2px;
+			  box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
+			  margin: 10px;
+			  padding: 0 0.5em;
+			  font: 400 18px Roboto, Arial, sans-serif;
+			  overflow: hidden;
+			  height: 40px;
+			  cursor: pointer;
+			  margin-top: 50px;
+			}
+			.custom-map-control-button:hover {
+			  background: #ebebeb;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="map"></div>
+	</body>
+</html>
+<script>
+
+
+// [START maps_map_geolocation]
+// Note: This example requires that you consent to location sharing when
+// prompted by your browser. If you see the error "The Geolocation service
+// failed.", it means you probably did not give permission for the browser to
+// locate you.
+
+
+
+ //待触发UniAppJSBridgeReady事件后，即可调用uni的API,这个可以不要
+ document.addEventListener('UniAppJSBridgeReady', function() {
+  uni.postMessage({
+   data: {
+    action: '你好'
+   }
+  });
+ });
+ 
+//从这里开始
+var map=null
+var marker=null
+
+var map, infoWindow;
+
+function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+  infoWindow.setPosition(pos);
+  infoWindow.setContent(
+    browserHasGeolocation
+      ? "Error: The Geolocation service failed."
+      : "Error: Your browser doesn't support geolocation."
+  );
+  infoWindow.open(map);
+}
+function initMap() {
+  map = new google.maps.Map(document.getElementById("map"), {
+    center: { lat: 22.72174, lng: 114.06031 },
+    zoom: 6,
+  });
+  infoWindow = new google.maps.InfoWindow();
+
+marker=new google.maps.Marker({
+	map,
+	draggable: true,
+		  	position:{ lat: 22.72174, lng: 114.06031 }
+		  })
+		  // marker.setMap(map)
+	//添加标记
+	google.maps.event.addListener(marker, 'position_changed', function (evt) {
+		console.log(evt);
+	    // document.getElementById('dragStatus').innerHTML = '<p> Current Lat: ' + evt.latLng.lat().toFixed(4) + ' Current Lng: ' + evt.latLng.lng().toFixed(4) + '</p>';
+	    var point = marker.getPosition();
+	    map.panTo(point);
+	});
+		
+
+  const locationButton = document.createElement("button");
+
+  locationButton.textContent = "Pan to Current Location";
+  locationButton.classList.add("custom-map-control-button");
+  map.controls[google.maps.ControlPosition.TOP_CENTER].push(locationButton);
+  locationButton.addEventListener("click", () => {
+	  console.log("点击"+navigator.geolocation+'info'+infoWindow);
+    // Try HTML5 geolocation.
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+			console.log("==="+position);
+          const pos = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          };
+
+          infoWindow.setPosition(pos);
+          infoWindow.setContent("Location found.");
+          infoWindow.open(map);
+          map.setCenter(pos);
+		  
+        },
+        () => {
+          handleLocationError(true, infoWindow, map.getCenter());
+        }
+      );
+    } else {
+      // Browser doesn't support Geolocation
+      handleLocationError(false, infoWindow, map.getCenter());
+    }
+  });
+}
+	//创建地图
+	function initMap11(){
+		
+		var uluru = {
+			lat: 22.72174,//Number(GetUrlParam('lat')),
+			lng: 114.06031//Number(GetUrlParam('log'))
+		};
+		
+		
+		
+		
+		
+		// document.title=decodeURIComponent(GetUrlParam('title'))
+		var mapProp={
+			center:uluru,
+			zoom:10,
+zoomControl:false,  //地图缩放控件
+			mapTypeControl:false,   //地图类型控件
+			streetViewControl:false,   //街景小人控件
+			fullscreenControl:false  ,//全屏控件
+			MapTypeld:google.maps.MapTypeId.ROADMAP
+		}
+		console.log(mapProp);
+		map = new google.maps.Map(document.getElementById('map'),mapProp)
+		
+		//添加标记
+		marker=new google.maps.Marker({
+			position:uluru
+		})
+		marker.setMap(map)
+		
+		infoWindow = new google.maps.InfoWindow();
+		
+		// const locationButton = document.createElement("button");
+		
+		// locationButton.textContent = "Pan to Current Location";
+		// locationButton.classList.add("custom-map-control-button");
+		// map.controls[google.maps.ControlPosition.TOP_CENTER].push(locationButton);
+		// locationButton.addEventListener("click", () => {
+		  // Try HTML5 geolocation.
+		  if (navigator.geolocation) {
+		    navigator.geolocation.getCurrentPosition(
+		      (position) => {
+		        const pos = {
+		          lat: position.coords.latitude,
+		          lng: position.coords.longitude,
+		        };
+		
+		        infoWindow.setPosition(pos);
+		        infoWindow.setContent("Location found.");
+		        infoWindow.open(map);
+		        map.setCenter(pos);
+		      },
+		      () => {
+		        handleLocationError(true, infoWindow, map.getCenter());
+		      }
+		    );
+		  } else {
+		    // Browser doesn't support Geolocation
+		    handleLocationError(false, infoWindow, map.getCenter());
+		  }
+		// });
+	}
+	
+	
+	
+	//得到标准经纬度和标题
+	function GetUrlParam(paraName) {
+		var url = window.location.href;
+		var arrObj = url.split("?");
+		if (arrObj.length > 1) {
+			var arrPara = arrObj[1].split("&");
+			var arr;
+			for (var i = 0; i < arrPara.length; i++) {
+				arr = arrPara[i].split("=");
+				if (arr != null && arr[0] == paraName) {
+					return arr[1];
+				}
+			}
+			return "";
+		} else {
+			return "";
+		}
+	}
+</script>
+ 
